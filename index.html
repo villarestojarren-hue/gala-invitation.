@@ -1,0 +1,513 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ano gala?</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  background: #f7f0e5;
+  color: #76543d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 470px;
+  background: #fffaf2;
+  border: 2px solid #ead9c5;
+  border-radius: 28px;
+  padding: 30px 22px;
+  text-align: center;
+  box-shadow: 0 10px 35px #9d79521c;
+  position: relative;
+  overflow: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.cat {
+  font-size: 75px;
+  margin: 12px 0;
+  animation: float 2.5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+h1 {
+  font-size: 36px;
+  margin: 10px 0;
+  color: #886548;
+}
+
+p {
+  color: #a18469;
+  line-height: 1.6;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: transform .2s, background .2s;
+}
+
+.yes {
+  background: #a78364;
+  color: white;
+  border-radius: 30px;
+  padding: 13px 32px;
+  font-size: 19px;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+.no {
+  background: #e9dccb;
+  color: #76543d;
+  border-radius: 30px;
+  padding: 13px 32px;
+  font-size: 17px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: 25px;
+  min-height: 70px;
+}
+
+.decor {
+  color: #c2a78c;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.month-title {
+  font-size: 23px;
+  font-weight: bold;
+  color: #886548;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0 14px;
+}
+
+.nav-btn {
+  background: #eee2d2;
+  color: #76543d;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.weekday {
+  font-size: 12px;
+  color: #ad8d70;
+  font-weight: bold;
+  padding: 8px 0;
+}
+
+.day {
+  aspect-ratio: 1;
+  border-radius: 13px;
+  background: #f5ecdf;
+  color: #76543d;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.day:not(:disabled):hover {
+  background: #e8d5be;
+  transform: scale(1.05);
+}
+
+.day.selected {
+  background: #a78364;
+  color: white;
+  box-shadow: 0 3px 8px #a7836440;
+}
+
+.day:disabled {
+  background: transparent;
+  cursor: default;
+}
+
+.selected-box {
+  background: #f6eee3;
+  border-radius: 16px;
+  padding: 13px;
+  margin-top: 20px;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.submit {
+  width: 100%;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 25px;
+  color: white;
+  background: #a78364;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.submit:disabled {
+  background: #d6c5b1;
+  cursor: not-allowed;
+}
+
+.small {
+  font-size: 12px;
+  color: #ad9277;
+}
+</style>
+</head>
+
+<body>
+
+<!-- FIRST PAGE -->
+
+<div class="card" id="page1">
+  <div class="decor">Ano gala</div>
+
+  <div class="cat">🐱</div>
+
+  <h1>Gala?</h1>
+
+  <div class="buttons">
+    <button class="yes" id="yesBtn" onclick="goToCalendar()">
+      Yes!
+    </button>
+
+    <button class="no" id="noBtn" onclick="growYes()">
+      No
+    </button>
+  </div>
+</div>
+
+
+<!-- SECOND PAGE -->
+
+<div class="card hidden" id="page2">
+  <div class="decor">When ka available 😔</div>
+
+  <div class="cat" style="font-size:60px">🐻</div>
+
+  <h1>yey</h1>
+
+  <p>Choose all the dates you are available</p>
+
+  <div class="month-nav">
+    <button class="nav-btn" id="prev"
+      onclick="changeMonth(-1)">‹</button>
+
+    <div class="month-title" id="monthTitle"></div>
+
+    <button class="nav-btn" id="next"
+      onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="calendar" id="calendar"></div>
+
+  <div class="selected-box">
+    <strong>Your selected dates:</strong>
+    <div id="selectedDates">No dates selected yet.</div>
+  </div>
+
+  <button class="submit" id="submitBtn"
+    onclick="sendDates()" disabled>
+    Submit my dates
+  </button>
+
+  <p class="small">
+    You can select multiple dates from October to December 2026.
+  </p>
+</div>
+
+
+<!-- FINAL PAGE -->
+
+<div class="card hidden" id="page3">
+  <div class="decor">THANK YOU</div>
+
+  <div class="cat" style="font-size:105px">😽</div>
+
+  <h1>Thank you</h1>
+
+  <p>
+    I'll let you know when everyone is available
+  </p>
+
+  <p> missu guys testing lang ng code</p>
+
+  <div style="font-size:32px; margin-top:15px">
+    🫨😢❤
+  </div>
+</div>
+
+
+<script>
+
+// EMAILJS SETTINGS
+
+const EMAILJS_PUBLIC_KEY = "GWxfXOmbHkEK8e2MP";
+const EMAILJS_SERVICE_ID = "service_dmgx6vl";
+const EMAILJS_TEMPLATE_ID = "template_v7ov8pu";
+
+// Initialize EmailJS
+
+emailjs.init({
+  publicKey: EMAILJS_PUBLIC_KEY
+});
+
+
+// YES AND NO BUTTON
+
+let yesScale = 1;
+
+function growYes() {
+  yesScale += 0.35;
+
+  document.getElementById("yesBtn").style.transform =
+    `scale(${yesScale})`;
+
+  document.getElementById("yesBtn").style.zIndex = 5;
+}
+
+
+// PAGE NAVIGATION
+
+function goToCalendar() {
+  document.getElementById("page1").classList.add("hidden");
+  document.getElementById("page2").classList.remove("hidden");
+
+  renderCalendar();
+}
+
+
+// CALENDAR SETTINGS
+
+const months = ["October", "November", "December"];
+
+let monthIndex = 0;
+let selectedDates = [];
+
+const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+
+// DISPLAY CALENDAR
+
+function renderCalendar() {
+  const year = 2026;
+  const month = monthIndex + 9;
+
+  const calendar = document.getElementById("calendar");
+
+  document.getElementById("monthTitle").textContent =
+    months[monthIndex] + " 2026";
+
+  document.getElementById("prev").disabled =
+    monthIndex === 0;
+
+  document.getElementById("next").disabled =
+    monthIndex === 2;
+
+  calendar.innerHTML = "";
+
+  // Weekday headings
+
+  weekdays.forEach(day => {
+    const heading = document.createElement("div");
+
+    heading.className = "weekday";
+    heading.textContent = day;
+
+    calendar.appendChild(heading);
+  });
+
+  // First day and total days
+
+  const firstDay = new Date(year, month, 1).getDay();
+
+  const daysInMonth =
+    new Date(year, month + 1, 0).getDate();
+
+  // Empty spaces
+
+  for (let i = 0; i < firstDay; i++) {
+    const blank = document.createElement("button");
+
+    blank.className = "day";
+    blank.disabled = true;
+
+    calendar.appendChild(blank);
+  }
+
+  // Create dates
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date =
+      `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+    const button = document.createElement("button");
+
+    button.className = "day";
+    button.textContent = day;
+
+    if (selectedDates.includes(date)) {
+      button.classList.add("selected");
+    }
+
+    button.onclick = () => toggleDate(date);
+
+    calendar.appendChild(button);
+  }
+}
+
+
+// CHANGE MONTH
+
+function changeMonth(direction) {
+  monthIndex += direction;
+  renderCalendar();
+}
+
+
+// SELECT OR DESELECT DATES
+
+function toggleDate(date) {
+  if (selectedDates.includes(date)) {
+    selectedDates = selectedDates.filter(d => d !== date);
+  } else {
+    selectedDates.push(date);
+  }
+
+  selectedDates.sort();
+
+  renderCalendar();
+  updateSelectedDates();
+}
+
+
+// DISPLAY SELECTED DATES
+
+function updateSelectedDates() {
+  const output =
+    document.getElementById("selectedDates");
+
+  const submit =
+    document.getElementById("submitBtn");
+
+  if (selectedDates.length === 0) {
+    output.textContent = "No dates selected yet.";
+  } else {
+    output.innerHTML = selectedDates.map(date => {
+      const d = new Date(date + "T12:00:00");
+
+      return d.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+    }).join("<br>");
+  }
+
+  submit.disabled = selectedDates.length === 0;
+}
+
+
+// SEND EMAIL
+
+async function sendDates() {
+  if (selectedDates.length === 0) return;
+
+  const submit =
+    document.getElementById("submitBtn");
+
+  submit.disabled = true;
+  submit.textContent = "Sending...";
+
+  try {
+    const formattedDates = selectedDates.map(date => {
+      const d = new Date(date + "T12:00:00");
+
+      return d.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+    }).join("\n");
+
+    await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      {
+        selected_dates: formattedDates,
+        message: "Here are the dates selected for our gala!",
+        subject: "Gala Availability"
+      }
+    );
+
+    // Show final page only after successful sending
+
+    document.getElementById("page2").classList.add("hidden");
+    document.getElementById("page3").classList.remove("hidden");
+
+  } catch (error) {
+    console.error("Email error:", error);
+
+    alert(
+      "Couldn't send the dates. Please check your internet connection and EmailJS settings, then try again."
+    );
+
+    submit.disabled = false;
+    submit.textContent = "Submit my dates";
+  }
+}
+
+</script>
+
+</body>
+</html>
